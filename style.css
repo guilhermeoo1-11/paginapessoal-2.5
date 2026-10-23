@@ -41,13 +41,9 @@ padding-right: 30px;
 display: flex;
 justify-content: center;
 }
-.escola.image{
-   width: 400px; 
-}
 .estudante_titulo{
 padding: 50px;
 text-align: center;
-
 }
 .estudante-nome{
 text-align: center;
