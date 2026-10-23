@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
 </head>
 <body>
     <header class="cabecalho-itens">
@@ -29,7 +30,6 @@ Escola">
 </ul>
 
     <style>
-
         * {
             margin: 0;
             padding: 0;
@@ -38,474 +38,78 @@ Escola">
 
         body {
             background: #101C2C;
-            font-family: monospace;
-            min-height: 150vh;
-            overflow-x: hidden;
+            font-family: Arial, sans-serif;
+            color: white;
         }
 
-        /* ÁREA DO JOGO */
+        /* BORDA QUE SEPARA O JOGO DA PÁGINA */
+        .area-jogo {
+            width: 95%;
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 12px;
 
-        .game-container {
-            width: 90%;
-            max-width: 1000px;
+            border: 8px solid #D97732;
+            border-radius: 25px;
 
-            margin: 80px auto;
+            background: #050914;
+            box-shadow: 0 0 25px rgba(217, 119, 50, 0.4);
+        }
 
+        .titulo-jogo {
+            text-align: center;
             padding: 15px;
-
-            border: 6px solid #D97732;
-            border-radius: 18px;
-
-            background: #080F1A;
-
-            box-shadow:
-                0 0 0 4px #182A42,
-                0 15px 30px rgba(0,0,0,0.5);
+            color: #D97732;
+            font-size: 28px;
         }
 
-        canvas {
+        #jogo {
             display: block;
-
             width: 100%;
-            height: auto;
+            height: 600px;
 
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-
-        /* CONTEÚDO ABAIXO DO JOGO */
-
-        .conteudo {
-            width: 90%;
-            max-width: 1000px;
-
-            margin: 0 auto 100px;
-
-            padding: 40px;
-
-            background: #182A42;
-
+            background: #050914;
             border-radius: 15px;
 
-            color: white;
+            image-rendering: pixelated;
+        }
 
+        .placar {
             text-align: center;
+            font-size: 20px;
+            padding-bottom: 10px;
         }
 
-        .conteudo h1 {
-            color: #D97732;
-            margin-bottom: 20px;
+        .controles {
+            text-align: center;
+            padding: 15px;
+            color: #ccc;
         }
-
-        .conteudo p {
-            font-size: 18px;
-            line-height: 1.6;
-        }
-
     </style>
 </head>
 
 <body>
 
-    <div class="game-container">
+    <section class="area-jogo">
 
-        <canvas id="game" width="960" height="540"></canvas>
+        <h1 class="titulo-jogo">
+            🚀 BATALHA ESPACIAL
+        </h1>
 
-    </div>
+        <div class="placar">
+            Pontos: <span id="pontos">0</span>
+        </div>
 
+        <canvas id="jogo" width="900" height="500"></canvas>
 
-    <div class="conteudo">
+        <div class="controles">
+            ← ↑ ↓ → para mover | ESPAÇO para atirar
+        </div>
 
-        <h1>PIXEL QUEST</h1>
+    </section>
 
-        <p>
-            Use WASD ou as setas para movimentar o personagem.
-            Pegue todas as moedas e explore o mapa!
-        </p>
-
-        <br>
-
-        <p>
-            ↓ Continue descendo a página ↓
-        </p>
-
-    </div>
-
-
-    <script>
-
-        const canvas = document.getElementById("game");
-        const ctx = canvas.getContext("2d");
-
-        ctx.imageSmoothingEnabled = false;
-
-
-        // =========================
-        // JOGADOR
-        // =========================
-
-        const jogador = {
-
-            x: 100,
-            y: 400,
-
-            largura: 32,
-            altura: 40,
-
-            velocidade: 4,
-
-            velocidadeY: 0,
-
-            pulando: false
-
-        };
-
-
-        // =========================
-        // TECLAS
-        // =========================
-
-        const teclas = {};
-
-        document.addEventListener("keydown", function(event) {
-
-            teclas[event.key.toLowerCase()] = true;
-
-        });
-
-        document.addEventListener("keyup", function(event) {
-
-            teclas[event.key.toLowerCase()] = false;
-
-        });
-
-
-        // =========================
-        // PLATAFORMAS
-        // =========================
-
-        const plataformas = [
-
-            {
-                x: 0,
-                y: 480,
-                largura: 960,
-                altura: 60
-            },
-
-            {
-                x: 180,
-                y: 380,
-                largura: 180,
-                altura: 20
-            },
-
-            {
-                x: 480,
-                y: 300,
-                largura: 180,
-                altura: 20
-            },
-
-            {
-                x: 750,
-                y: 400,
-                largura: 150,
-                altura: 20
-            }
-
-        ];
-
-
-        // =========================
-        // MOEDAS
-        // =========================
-
-        const moedas = [
-
-            {
-                x: 250,
-                y: 340,
-                coletada: false
-            },
-
-            {
-                x: 550,
-                y: 260,
-                coletada: false
-            },
-
-            {
-                x: 800,
-                y: 360,
-                coletada: false
-            }
-
-        ];
-
-
-        let pontos = 0;
-
-
-        // =========================
-        // ATUALIZAR JOGO
-        // =========================
-
-        function atualizar() {
-
-            // MOVIMENTO
-
-            if (
-                teclas["a"] ||
-                teclas["arrowleft"]
-            ) {
-
-                jogador.x -= jogador.velocidade;
-
-            }
-
-
-            if (
-                teclas["d"] ||
-                teclas["arrowright"]
-            ) {
-
-                jogador.x += jogador.velocidade;
-
-            }
-
-
-            // PULO
-
-            if (
-
-                (
-                    teclas["w"] ||
-                    teclas["arrowup"] ||
-                    teclas[" "]
-                )
-
-                &&
-
-                !jogador.pulando
-
-            ) {
-
-                jogador.velocidadeY = -11;
-
-                jogador.pulando = true;
-
-            }
-
-
-            // GRAVIDADE
-
-            jogador.velocidadeY += 0.5;
-
-            jogador.y += jogador.velocidadeY;
-
-
-            jogador.pulando = true;
-
-
-            // COLISÃO
-
-            for (const plataforma of plataformas) {
-
-                if (
-
-                    jogador.x <
-                    plataforma.x +
-                    plataforma.largura
-
-                    &&
-
-                    jogador.x +
-                    jogador.largura >
-                    plataforma.x
-
-                    &&
-
-                    jogador.y +
-                    jogador.altura >=
-                    plataforma.y
-
-                    &&
-
-                    jogador.y +
-                    jogador.altura <=
-                    plataforma.y +
-                    plataforma.altura +
-                    10
-
-                    &&
-
-                    jogador.velocidadeY >= 0
-
-                ) {
-
-                    jogador.y =
-                        plataforma.y -
-                        jogador.altura;
-
-                    jogador.velocidadeY = 0;
-
-                    jogador.pulando = false;
-
-                }
-
-            }
-
-
-            // LIMITES
-
-            if (jogador.x < 0) {
-
-                jogador.x = 0;
-
-            }
-
-
-            if (
-                jogador.x +
-                jogador.largura >
-                canvas.width
-            ) {
-
-                jogador.x =
-                    canvas.width -
-                    jogador.largura;
-
-            }
-
-
-            // CAIU
-
-            if (jogador.y > canvas.height) {
-
-                jogador.x = 100;
-
-                jogador.y = 400;
-
-                jogador.velocidadeY = 0;
-
-            }
-
-
-            // PEGAR MOEDAS
-
-            for (const moeda of moedas) {
-
-                if (moeda.coletada)
-                    continue;
-
-
-                if (
-
-                    jogador.x <
-                    moeda.x + 18
-
-                    &&
-
-                    jogador.x +
-                    jogador.largura >
-                    moeda.x
-
-                    &&
-
-                    jogador.y <
-                    moeda.y + 18
-
-                    &&
-
-                    jogador.y +
-                    jogador.altura >
-                    moeda.y
-
-                ) {
-
-                    moeda.coletada = true;
-
-                    pontos += 100;
-
-                }
-
-            }
-
-        }
-
-
-        // =========================
-        // FUNDO
-        // =========================
-
-        function desenharFundo() {
-
-            ctx.fillStyle = "#111B32";
-
-            ctx.fillRect(
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
-
-
-            // LUA
-
-            ctx.fillStyle = "#FFF1A8";
-
-            ctx.fillRect(
-                760,
-                70,
-                50,
-                50
-            );
-
-
-            // ESTRELAS
-
-            ctx.fillStyle = "#FFFFFF";
-
-            const estrelas = [
-
-                [80,70],
-                [180,120],
-                [300,60],
-                [430,100],
-                [600,70],
-                [880,130],
-                [700,180]
-
-            ];
-
-
-            for (const estrela of estrelas) {
-
-                ctx.fillRect(
-                    estrela[0],
-                    estrela[1],
-                    4,
-                    4
-                );
-
-            }
-
-        }
-
-
-        // =========================
-        // PLATAFORMAS
-        // =========================
-
-        function desenharPlataformas() {
-
-            for (const plataforma of plataformas) {
-
-                ctx.fillStyle = "#315C3A";
-
-                ctx.fillRect(
-
+    <!-- JavaScript separado -->
+    <script src="jogo.js"></script>
 
 <footer class="escola-jogo">
 <img class="logo_rodape" src="logo_nossa_escola.png" alt="Logo da Escola">
