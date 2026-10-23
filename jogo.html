@@ -29,6 +29,7 @@ Escola">
 </ul>
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -37,936 +38,474 @@ Escola">
 
         body {
             background: #101C2C;
-            overflow: hidden;
             font-family: monospace;
+            min-height: 150vh;
+            overflow-x: hidden;
+        }
+
+        /* ÁREA DO JOGO */
+
+        .game-container {
+            width: 90%;
+            max-width: 1000px;
+
+            margin: 80px auto;
+
+            padding: 15px;
+
+            border: 6px solid #D97732;
+            border-radius: 18px;
+
+            background: #080F1A;
+
+            box-shadow:
+                0 0 0 4px #182A42,
+                0 15px 30px rgba(0,0,0,0.5);
         }
 
         canvas {
             display: block;
-            width: 100vw;
-            height: 100vh;
+
+            width: 100%;
+            height: auto;
+
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
+
+        /* CONTEÚDO ABAIXO DO JOGO */
+
+        .conteudo {
+            width: 90%;
+            max-width: 1000px;
+
+            margin: 0 auto 100px;
+
+            padding: 40px;
+
+            background: #182A42;
+
+            border-radius: 15px;
+
+            color: white;
+
+            text-align: center;
+        }
+
+        .conteudo h1 {
+            color: #D97732;
+            margin-bottom: 20px;
+        }
+
+        .conteudo p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
     </style>
 </head>
 
 <body>
 
-<canvas id="game"></canvas>
+    <div class="game-container">
 
-<script>
+        <canvas id="game" width="960" height="540"></canvas>
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    </div>
 
-canvas.width = 960;
-canvas.height = 540;
 
-ctx.imageSmoothingEnabled = false;
+    <div class="conteudo">
 
+        <h1>PIXEL QUEST</h1>
 
-// ===============================
-// CONFIGURAÇÕES
-// ===============================
+        <p>
+            Use WASD ou as setas para movimentar o personagem.
+            Pegue todas as moedas e explore o mapa!
+        </p>
 
-const MAPA_LARGURA = 3000;
-const MAPA_ALTURA = 1200;
+        <br>
 
-let cameraX = 0;
-let cameraY = 0;
+        <p>
+            ↓ Continue descendo a página ↓
+        </p>
 
-let pontuacao = 0;
-let vidas = 3;
-let jogoTerminou = false;
-let venceu = false;
+    </div>
 
 
-// ===============================
-// TECLAS
-// ===============================
+    <script>
 
-const teclas = {};
+        const canvas = document.getElementById("game");
+        const ctx = canvas.getContext("2d");
 
-document.addEventListener("keydown", (e) => {
-    teclas[e.key.toLowerCase()] = true;
+        ctx.imageSmoothingEnabled = false;
 
-    if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(e.key.toLowerCase())) {
-        e.preventDefault();
-    }
 
-    if (e.key.toLowerCase() === "r" && jogoTerminou) {
-        reiniciar();
-    }
-});
+        // =========================
+        // JOGADOR
+        // =========================
 
-document.addEventListener("keyup", (e) => {
-    teclas[e.key.toLowerCase()] = false;
-});
+        const jogador = {
 
+            x: 100,
+            y: 400,
 
-// ===============================
-// JOGADOR
-// ===============================
+            largura: 32,
+            altura: 40,
 
-const jogador = {
+            velocidade: 4,
 
-    x: 150,
-    y: 700,
+            velocidadeY: 0,
 
-    largura: 32,
-    altura: 40,
+            pulando: false
 
-    velocidade: 4,
+        };
 
-    vx: 0,
-    vy: 0,
 
-    noChao: false,
+        // =========================
+        // TECLAS
+        // =========================
 
-    direcao: 1,
+        const teclas = {};
 
-    animacao: 0,
+        document.addEventListener("keydown", function(event) {
 
-    invencivel: 0
-};
+            teclas[event.key.toLowerCase()] = true;
 
+        });
 
-// ===============================
-// PLATAFORMAS
-// ===============================
+        document.addEventListener("keyup", function(event) {
 
-const plataformas = [
+            teclas[event.key.toLowerCase()] = false;
 
-    {x: 0, y: 820, largura: 3000, altura: 80},
+        });
 
-    {x: 250, y: 700, largura: 250, altura: 30},
-    {x: 650, y: 600, largura: 250, altura: 30},
-    {x: 1050, y: 720, largura: 300, altura: 30},
-    {x: 1450, y: 580, largura: 250, altura: 30},
-    {x: 1800, y: 700, largura: 280, altura: 30},
-    {x: 2200, y: 560, largura: 300, altura: 30},
-    {x: 2600, y: 700, largura: 250, altura: 30}
 
-];
+        // =========================
+        // PLATAFORMAS
+        // =========================
 
+        const plataformas = [
 
-// ===============================
-// MOEDAS
-// ===============================
+            {
+                x: 0,
+                y: 480,
+                largura: 960,
+                altura: 60
+            },
 
-let moedas = [
+            {
+                x: 180,
+                y: 380,
+                largura: 180,
+                altura: 20
+            },
 
-    {x: 330, y: 650, coletada: false},
-    {x: 720, y: 550, coletada: false},
-    {x: 1120, y: 670, coletada: false},
-    {x: 1510, y: 530, coletada: false},
-    {x: 1900, y: 650, coletada: false},
-    {x: 2280, y: 510, coletada: false},
-    {x: 2700, y: 650, coletada: false}
+            {
+                x: 480,
+                y: 300,
+                largura: 180,
+                altura: 20
+            },
 
-];
+            {
+                x: 750,
+                y: 400,
+                largura: 150,
+                altura: 20
+            }
 
+        ];
 
-// ===============================
-// INIMIGOS
-// ===============================
 
-let inimigos = [
+        // =========================
+        // MOEDAS
+        // =========================
 
-    {
-        x: 550,
-        y: 780,
-        largura: 35,
-        altura: 35,
-        velocidade: 1.5,
-        direcao: 1
-    },
+        const moedas = [
 
-    {
-        x: 1250,
-        y: 680,
-        largura: 35,
-        altura: 35,
-        velocidade: 1.8,
-        direcao: -1
-    },
+            {
+                x: 250,
+                y: 340,
+                coletada: false
+            },
 
-    {
-        x: 1750,
-        y: 780,
-        largura: 35,
-        altura: 35,
-        velocidade: 1.4,
-        direcao: 1
-    },
+            {
+                x: 550,
+                y: 260,
+                coletada: false
+            },
 
-    {
-        x: 2400,
-        y: 520,
-        largura: 35,
-        altura: 35,
-        velocidade: 1.7,
-        direcao: -1
-    }
+            {
+                x: 800,
+                y: 360,
+                coletada: false
+            }
 
-];
+        ];
 
 
-// ===============================
-// ESTRELAS DO CÉU
-// ===============================
+        let pontos = 0;
 
-const estrelas = [];
 
-for (let i = 0; i < 100; i++) {
+        // =========================
+        // ATUALIZAR JOGO
+        // =========================
 
-    estrelas.push({
+        function atualizar() {
 
-        x: Math.random() * MAPA_LARGURA,
-        y: Math.random() * 500,
+            // MOVIMENTO
 
-        tamanho: Math.random() * 3 + 1
+            if (
+                teclas["a"] ||
+                teclas["arrowleft"]
+            ) {
 
-    });
+                jogador.x -= jogador.velocidade;
 
-}
+            }
 
 
-// ===============================
-// CONTROLE DO JOGADOR
-// ===============================
+            if (
+                teclas["d"] ||
+                teclas["arrowright"]
+            ) {
 
-function controlarJogador() {
+                jogador.x += jogador.velocidade;
 
-    jogador.vx = 0;
+            }
 
-    if (teclas["a"] || teclas["arrowleft"]) {
 
-        jogador.vx = -jogador.velocidade;
-        jogador.direcao = -1;
+            // PULO
 
-    }
+            if (
 
-    if (teclas["d"] || teclas["arrowright"]) {
+                (
+                    teclas["w"] ||
+                    teclas["arrowup"] ||
+                    teclas[" "]
+                )
 
-        jogador.vx = jogador.velocidade;
-        jogador.direcao = 1;
+                &&
 
-    }
+                !jogador.pulando
 
-    if (
-        (teclas["w"] ||
-        teclas["arrowup"] ||
-        teclas[" "]) &&
-        jogador.noChao
-    ) {
+            ) {
 
-        jogador.vy = -12;
-        jogador.noChao = false;
+                jogador.velocidadeY = -11;
 
-    }
+                jogador.pulando = true;
 
-}
+            }
 
 
-// ===============================
-// FÍSICA
-// ===============================
+            // GRAVIDADE
 
-function aplicarFisica() {
+            jogador.velocidadeY += 0.5;
 
-    jogador.vy += 0.5;
+            jogador.y += jogador.velocidadeY;
 
-    jogador.x += jogador.vx;
-    jogador.y += jogador.vy;
 
-    jogador.noChao = false;
+            jogador.pulando = true;
 
 
-    for (const p of plataformas) {
+            // COLISÃO
 
-        if (
+            for (const plataforma of plataformas) {
 
-            jogador.x < p.x + p.largura &&
-            jogador.x + jogador.largura > p.x &&
-            jogador.y + jogador.altura >= p.y &&
-            jogador.y + jogador.altura <= p.y + p.altura + jogador.vy + 5
+                if (
 
-        ) {
+                    jogador.x <
+                    plataforma.x +
+                    plataforma.largura
 
-            if (jogador.vy >= 0) {
+                    &&
 
-                jogador.y = p.y - jogador.altura;
+                    jogador.x +
+                    jogador.largura >
+                    plataforma.x
 
-                jogador.vy = 0;
+                    &&
 
-                jogador.noChao = true;
+                    jogador.y +
+                    jogador.altura >=
+                    plataforma.y
+
+                    &&
+
+                    jogador.y +
+                    jogador.altura <=
+                    plataforma.y +
+                    plataforma.altura +
+                    10
+
+                    &&
+
+                    jogador.velocidadeY >= 0
+
+                ) {
+
+                    jogador.y =
+                        plataforma.y -
+                        jogador.altura;
+
+                    jogador.velocidadeY = 0;
+
+                    jogador.pulando = false;
+
+                }
+
+            }
+
+
+            // LIMITES
+
+            if (jogador.x < 0) {
+
+                jogador.x = 0;
+
+            }
+
+
+            if (
+                jogador.x +
+                jogador.largura >
+                canvas.width
+            ) {
+
+                jogador.x =
+                    canvas.width -
+                    jogador.largura;
+
+            }
+
+
+            // CAIU
+
+            if (jogador.y > canvas.height) {
+
+                jogador.x = 100;
+
+                jogador.y = 400;
+
+                jogador.velocidadeY = 0;
+
+            }
+
+
+            // PEGAR MOEDAS
+
+            for (const moeda of moedas) {
+
+                if (moeda.coletada)
+                    continue;
+
+
+                if (
+
+                    jogador.x <
+                    moeda.x + 18
+
+                    &&
+
+                    jogador.x +
+                    jogador.largura >
+                    moeda.x
+
+                    &&
+
+                    jogador.y <
+                    moeda.y + 18
+
+                    &&
+
+                    jogador.y +
+                    jogador.altura >
+                    moeda.y
+
+                ) {
+
+                    moeda.coletada = true;
+
+                    pontos += 100;
+
+                }
 
             }
 
         }
 
-    }
 
+        // =========================
+        // FUNDO
+        // =========================
 
-    if (jogador.x < 0)
-        jogador.x = 0;
+        function desenharFundo() {
 
-    if (jogador.x > MAPA_LARGURA - jogador.largura)
-        jogador.x = MAPA_LARGURA - jogador.largura;
-
-
-    if (jogador.y > MAPA_ALTURA) {
-
-        perderVida();
-
-    }
-
-}
-
-
-// ===============================
-// MOEDAS
-// ===============================
-
-function atualizarMoedas() {
-
-    for (const moeda of moedas) {
-
-        if (moeda.coletada)
-            continue;
-
-        const distanciaX =
-            jogador.x + jogador.largura / 2 - moeda.x;
-
-        const distanciaY =
-            jogador.y + jogador.altura / 2 - moeda.y;
-
-        const distancia =
-            Math.sqrt(distanciaX ** 2 + distanciaY ** 2);
-
-
-        if (distancia < 35) {
-
-            moeda.coletada = true;
-
-            pontuacao += 100;
-
-        }
-
-    }
-
-
-    if (moedas.every(m => m.coletada)) {
-
-        venceu = true;
-        jogoTerminou = true;
-
-    }
-
-}
-
-
-// ===============================
-// INIMIGOS
-// ===============================
-
-function atualizarInimigos() {
-
-    for (const inimigo of inimigos) {
-
-        inimigo.x += inimigo.velocidade * inimigo.direcao;
-
-
-        if (
-            inimigo.x < 0 ||
-            inimigo.x > MAPA_LARGURA - inimigo.largura
-        ) {
-
-            inimigo.direcao *= -1;
-
-        }
-
-
-        if (jogador.invencivel > 0)
-            continue;
-
-
-        if (
-
-            jogador.x < inimigo.x + inimigo.largura &&
-            jogador.x + jogador.largura > inimigo.x &&
-            jogador.y < inimigo.y + inimigo.altura &&
-            jogador.y + jogador.altura > inimigo.y
-
-        ) {
-
-            perderVida();
-
-        }
-
-    }
-
-}
-
-
-// ===============================
-// PERDER VIDA
-// ===============================
-
-function perderVida() {
-
-    if (jogador.invencivel > 0)
-        return;
-
-
-    vidas--;
-
-    jogador.invencivel = 120;
-
-    jogador.x = 150;
-    jogador.y = 700;
-
-    jogador.vy = 0;
-
-
-    if (vidas <= 0) {
-
-        jogoTerminou = true;
-        venceu = false;
-
-    }
-
-}
-
-
-// ===============================
-// CÂMERA
-// ===============================
-
-function atualizarCamera() {
-
-    cameraX =
-        jogador.x - canvas.width / 2;
-
-    cameraY =
-        jogador.y - canvas.height / 2;
-
-
-    if (cameraX < 0)
-        cameraX = 0;
-
-    if (cameraY < 0)
-        cameraY = 0;
-
-
-    if (cameraX > MAPA_LARGURA - canvas.width)
-        cameraX = MAPA_LARGURA - canvas.width;
-
-    if (cameraY > MAPA_ALTURA - canvas.height)
-        cameraY = MAPA_ALTURA - canvas.height;
-
-}
-
-
-// ===============================
-// DESENHAR FUNDO
-// ===============================
-
-function desenharFundo() {
-
-    ctx.fillStyle = "#111B32";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-
-    // LUA
-
-    ctx.fillStyle = "#FFF3B0";
-
-    ctx.fillRect(
-        760 - cameraX * 0.15,
-        80 - cameraY * 0.05,
-        60,
-        60
-    );
-
-
-    // ESTRELAS
-
-    ctx.fillStyle = "#FFFFFF";
-
-    for (const estrela of estrelas) {
-
-        const x = estrela.x - cameraX * 0.2;
-        const y = estrela.y - cameraY * 0.1;
-
-        if (x > 0 && x < canvas.width) {
+            ctx.fillStyle = "#111B32";
 
             ctx.fillRect(
-                x,
-                y,
-                estrela.tamanho,
-                estrela.tamanho
+                0,
+                0,
+                canvas.width,
+                canvas.height
             );
+
+
+            // LUA
+
+            ctx.fillStyle = "#FFF1A8";
+
+            ctx.fillRect(
+                760,
+                70,
+                50,
+                50
+            );
+
+
+            // ESTRELAS
+
+            ctx.fillStyle = "#FFFFFF";
+
+            const estrelas = [
+
+                [80,70],
+                [180,120],
+                [300,60],
+                [430,100],
+                [600,70],
+                [880,130],
+                [700,180]
+
+            ];
+
+
+            for (const estrela of estrelas) {
+
+                ctx.fillRect(
+                    estrela[0],
+                    estrela[1],
+                    4,
+                    4
+                );
+
+            }
 
         }
 
-    }
 
+        // =========================
+        // PLATAFORMAS
+        // =========================
 
-    // MONTANHAS
+        function desenharPlataformas() {
 
-    ctx.fillStyle = "#182A42";
+            for (const plataforma of plataformas) {
 
-    for (let x = -500; x < MAPA_LARGURA; x += 500) {
+                ctx.fillStyle = "#315C3A";
 
-        ctx.beginPath();
+                ctx.fillRect(
 
-        ctx.moveTo(x - cameraX * 0.4, 820);
-
-        ctx.lineTo(x + 250 - cameraX * 0.4, 350);
-
-        ctx.lineTo(x + 500 - cameraX * 0.4, 820);
-
-        ctx.fill();
-
-    }
-
-}
-
-
-// ===============================
-// DESENHAR PLATAFORMAS
-// ===============================
-
-function desenharPlataformas() {
-
-    for (const p of plataformas) {
-
-        ctx.fillStyle = "#3A6B3F";
-
-        ctx.fillRect(
-            p.x - cameraX,
-            p.y - cameraY,
-            p.largura,
-            p.altura
-        );
-
-
-        ctx.fillStyle = "#5C963F";
-
-        ctx.fillRect(
-            p.x - cameraX,
-            p.y - cameraY,
-            p.largura,
-            10
-        );
-
-    }
-
-}
-
-
-// ===============================
-// DESENHAR MOEDAS
-// ===============================
-
-function desenharMoedas() {
-
-    for (const moeda of moedas) {
-
-        if (moeda.coletada)
-            continue;
-
-
-        const x = moeda.x - cameraX;
-        const y = moeda.y - cameraY;
-
-
-        ctx.fillStyle = "#F7C843";
-
-        ctx.fillRect(
-            x - 10,
-            y - 14,
-            20,
-            28
-        );
-
-
-        ctx.fillStyle = "#FFE98A";
-
-        ctx.fillRect(
-            x - 3,
-            y - 10,
-            5,
-            20
-        );
-
-    }
-
-}
-
-
-// ===============================
-// DESENHAR INIMIGOS
-// ===============================
-
-function desenharInimigos() {
-
-    for (const inimigo of inimigos) {
-
-        const x = inimigo.x - cameraX;
-        const y = inimigo.y - cameraY;
-
-
-        ctx.fillStyle = "#B83A3A";
-
-        ctx.fillRect(
-            x,
-            y,
-            inimigo.largura,
-            inimigo.altura
-        );
-
-
-        // olhos
-
-        ctx.fillStyle = "#FFFFFF";
-
-        ctx.fillRect(x + 7, y + 8, 7, 7);
-        ctx.fillRect(x + 21, y + 8, 7, 7);
-
-
-        ctx.fillStyle = "#000000";
-
-        ctx.fillRect(x + 9, y + 10, 4, 4);
-        ctx.fillRect(x + 23, y + 10, 4, 4);
-
-    }
-
-}
-
-
-// ===============================
-// DESENHAR JOGADOR
-// ===============================
-
-function desenharJogador() {
-
-    if (
-        jogador.invencivel > 0 &&
-        Math.floor(jogador.invencivel / 8) % 2 === 0
-    )
-        return;
-
-
-    const x = jogador.x - cameraX;
-    const y = jogador.y - cameraY;
-
-
-    // corpo
-
-    ctx.fillStyle = "#D97732";
-
-    ctx.fillRect(
-        x,
-        y + 8,
-        jogador.largura,
-        32
-    );
-
-
-    // cabeça
-
-    ctx.fillStyle = "#F2B27D";
-
-    ctx.fillRect(
-        x + 4,
-        y,
-        24,
-        22
-    );
-
-
-    // cabelo
-
-    ctx.fillStyle = "#3A2418";
-
-    ctx.fillRect(
-        x + 4,
-        y,
-        24,
-        7
-    );
-
-
-    // olhos
-
-    ctx.fillStyle = "#FFFFFF";
-
-    ctx.fillRect(
-        x + 8,
-        y + 9,
-        5,
-        5
-    );
-
-    ctx.fillRect(
-        x + 20,
-        y + 9,
-        5,
-        5
-    );
-
-
-    ctx.fillStyle = "#000000";
-
-    ctx.fillRect(
-        x + 10,
-        y + 11,
-        2,
-        2
-    );
-
-    ctx.fillRect(
-        x + 22,
-        y + 11,
-        2,
-        2
-    );
-
-
-    // pernas
-
-    ctx.fillStyle = "#263B5A";
-
-    ctx.fillRect(
-        x + 4,
-        y + 34,
-        10,
-        6
-    );
-
-    ctx.fillRect(
-        x + 18,
-        y + 34,
-        10,
-        6
-    );
-
-}
-
-
-// ===============================
-// HUD
-// ===============================
-
-function desenharHUD() {
-
-    ctx.fillStyle = "#FFFFFF";
-
-    ctx.font = "22px monospace";
-
-    ctx.fillText(
-        "PONTOS: " + pontuacao,
-        25,
-        35
-    );
-
-
-    ctx.fillText(
-        "VIDAS: " + "♥".repeat(vidas),
-        25,
-        65
-    );
-
-
-    ctx.fillText(
-        "MOEDAS: " +
-        moedas.filter(m => m.coletada).length +
-        "/" +
-        moedas.length,
-        25,
-        95
-    );
-
-
-    ctx.font = "16px monospace";
-
-    ctx.fillText(
-        "WASD / SETAS = MOVER   ESPAÇO = PULAR",
-        25,
-        canvas.height - 20
-    );
-
-}
-
-
-// ===============================
-// TELA FINAL
-// ===============================
-
-function desenharTelaFinal() {
-
-    ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
-
-    ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-
-    ctx.textAlign = "center";
-
-
-    if (venceu) {
-
-        ctx.fillStyle = "#F7C843";
-
-        ctx.font = "50px monospace";
-
-        ctx.fillText(
-            "VOCÊ VENCEU!",
-            canvas.width / 2,
-            canvas.height / 2 - 40
-        );
-
-    } else {
-
-        ctx.fillStyle = "#E05252";
-
-        ctx.font = "50px monospace";
-
-        ctx.fillText(
-            "GAME OVER",
-            canvas.width / 2,
-            canvas.height / 2 - 40
-        );
-
-    }
-
-
-    ctx.fillStyle = "#FFFFFF";
-
-    ctx.font = "22px monospace";
-
-    ctx.fillText(
-        "PONTUAÇÃO: " + pontuacao,
-        canvas.width / 2,
-        canvas.height / 2 + 10
-    );
-
-
-    ctx.fillText(
-        "PRESSIONE R PARA JOGAR NOVAMENTE",
-        canvas.width / 2,
-        canvas.height / 2 + 60
-    );
-
-
-    ctx.textAlign = "left";
-
-}
-
-
-// ===============================
-// LOOP PRINCIPAL
-// ===============================
-
-function atualizar() {
-
-    if (!jogoTerminou) {
-
-        controlarJogador();
-
-        aplicarFisica();
-
-        atualizarMoedas();
-
-        atualizarInimigos();
-
-        atualizarCamera();
-
-
-        if (jogador.invencivel > 0)
-            jogador.invencivel--;
-
-    }
-
-}
-
-
-function desenhar() {
-
-    desenharFundo();
-
-    desenharPlataformas();
-
-    desenharMoedas();
-
-    desenharInimigos();
-
-    desenharJogador();
-
-    desenharHUD();
-
-
-    if (jogoTerminou) {
-
-        desenharTelaFinal();
-
-    }
-
-}
-
-
-function loop() {
-
-    atualizar();
-
-    desenhar();
-
-    requestAnimationFrame(loop);
-
-}
-
-
-// ===============================
-// REINICIAR
-// ===============================
-
-function reiniciar() {
-
-    jogador.x = 150;
-    jogador.y = 700;
-    jogador.vx = 0;
-    jogador.vy = 0;
-
-    vidas = 3;
-
-    pontuacao = 0;
-
-    jogoTerminou = false;
-
-    venceu = false;
-
-    moedas.forEach(m => {
-        m.coletada = false;
-    });
-
-}
-
-
-loop();
-
-</script>
-
-</body>
-</html>
-```
 
 <footer class="escola-jogo">
 <img class="logo_rodape" src="logo_nossa_escola.png" alt="Logo da Escola">
