@@ -130,29 +130,8 @@ ul li a {
   padding: 14px 16px;
   text-decoration: none;
 }
-ul.jogo {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #101C2C;
-  display: flex;
-  justify-content: center;
-}
 
-ul li.jogo {
-  float: left;
-}
-
-ul li a.jogo {
-  display: block;
-  color: #D97732;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-}
-
-ul li a:hover.jogo {
+ul li a:hover {
   background-color: #667385;
 }
 .palmeiras {
