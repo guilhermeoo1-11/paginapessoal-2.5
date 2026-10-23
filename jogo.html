@@ -173,6 +173,45 @@ Escola">
     }
   </style>
 </head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.7 14.7 9l6.6 3-6.6 2.7-2.7 6.6-2.8-6.6L2.7 12l6.5-3L12 2.7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
+        </div>
+        <div><div class="brand-name">ÓRBITA</div><div class="brand-sub">ARCADE ESPACIAL</div></div>
+      </div>
+      <div class="edition">MISSÃO 01&nbsp; / &nbsp;SOBREVIVÊNCIA</div>
+    </header>
+
+    <section class="game-card" aria-label="Jogo Órbita">
+      <div class="stage" id="stage">
+        <canvas id="game" width="960" height="600" aria-label="Desvie dos meteoros e colete energia"></canvas>
+        <div class="hud" aria-live="polite">
+          <div class="hud-box"><div class="hud-label">PONTOS</div><div class="hud-value" id="score">0000</div></div>
+          <div class="hud-group">
+            <div class="hud-box"><div class="hud-label">RECORDE</div><div class="hud-value" id="best">0000</div></div>
+            <div class="hud-box"><div class="hud-label">VIDAS</div><div class="hud-value" id="lives">♥ ♥ ♥</div></div>
+          </div>
+        </div>
+        <div class="overlay" id="overlay">
+          <div class="intro">
+            <div class="eyebrow">SINAL DETECTADO</div>
+            <h1 id="overlay-title">DESVIE DO<br><span>CAOS.</span></h1>
+            <p id="overlay-description">Pilote sua nave por um campo de asteroides. Aguente firme, colete energia e faça história na galáxia.</p>
+            <button class="play-button" id="play-button" type="button">INICIAR MISSÃO&nbsp; ↗</button>
+            <div class="mini-tip" id="overlay-tip">Você tem 3 vidas. O espaço não perdoa distrações.</div>
+          </div>
+        </div>
+      </div>
+      <footer class="controls">
+        <div class="control-hint"><span class="keys"><kbd>←</kbd><kbd>→</kbd></span><span>ou</span><span class="keys"><kbd>A</kbd><kbd>D</kbd></span><span>para pilotar</span></div>
+        <div class="tip-right">TOQUE E ARRASTE PARA JOGAR NO CELULAR</div>
+      </footer>
+    </section>
+  </main>
+
   <script>
     (() => {
       const canvas = document.getElementById('game');
