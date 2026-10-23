@@ -38,9 +38,17 @@ width: 25%;
 padding-right: 30px;
 }
 .banner1{
-display: flex;
+display: block;
 width: 100%;
-justify-content: center;
+overflow: hidden;
+}
+.escola.image,
+.banner1 img {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  display: block;
+  margin: 0;
 }
 .estudante_titulo{
 padding: 50px;
