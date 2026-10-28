@@ -162,18 +162,6 @@ ul li a:hover {
     padding: 0 20px;
 }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: #101C2C;
-            font-family: Arial, sans-serif;
-            color: white;
-        }
-
         /* BORDA QUE SEPARA O JOGO DA PÁGINA */
         .area-jogo {
             width: 95%;
