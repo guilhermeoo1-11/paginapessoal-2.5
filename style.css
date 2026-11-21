@@ -41,10 +41,12 @@ padding-right: 30px;
    display: inline-block;
 }
 .whatsapp-link img{
-display: flex;
-justify-content: flex-end;
-width: 25%;
-padding-right: 30px;
+  width: 300px;
+  height: auto;
+  border-radius: 8px;
+}
+.whatsapp-link:hover img{
+    opacity: 0.85;
 }
 .banner1{
 display: block;
