@@ -40,7 +40,12 @@ padding-right: 30px;
 .whatsapp-link{
    display: inline-block;
 }
-
+.whatsapp-link img{
+display: flex;
+justify-content: flex-end;
+width: 25%;
+padding-right: 30px;
+}
 .banner1{
 display: block;
 width: 100%;
