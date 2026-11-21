@@ -37,15 +37,15 @@ justify-content: flex-end;
 width: 25%;
 padding-right: 30px;
 }
-.whatsapp-link{
+.sociais-link{
    display: inline-block;
 }
-.whatsapp-link img{
-  width: 300px;
+.sociais-link img{
+  width: 100px;
   height: auto;
   border-radius: 8px;
 }
-.whatsapp-link:hover img{
+.sociais-link:hover img{
     opacity: 0.85;
 }
 .banner1{
